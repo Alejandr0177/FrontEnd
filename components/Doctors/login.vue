@@ -4,21 +4,21 @@
             <div class="posicion">
                 <div class="login-box">
                     <h2>Login</h2>
-                    <v-form v-model="isValid" ref="formLogin">
+                    <v-form ref="formLogin">
 
-                    <div class="user-box">
+                    
+                        <div class="user-box">
+                            <input v-model="editedItem.email" required="">
+                            <label>Email</label>
 
-                        <input v-model="usuario" required="" :rules="[regla]">
-                        <label>Email</label>
+                        </div>
 
-                    </div>
+                        <div class="user-box">
 
-                    <div class="user-box">
-
-                        <input type="password" id="password" name="ingresoPassword" required="">
+                        <input v-model="editedItem.password" type="password" id="password" required="" >
                         <label>Password</label>
 
-                    </div>
+                        </div>
 
                     <div class="row" id="groupbtn">
                         <div>
@@ -50,28 +50,34 @@
 
 <script>
 export default {
-    data () {
-        return {
-            usuario: '',
-            password: '',
-            isValid: false,
-            regla: {
+    data: () => ({
+        editedItem: {
+                email: '',
+                password: '',
+                regla: {
                 vacio: value => !!value || 'Campo Requerido',
                 cantidad: value => value.length > 8 || 'Minimo 8 caracteres'
             }
-        }
-    }, 
+        },
+    }),
     methods: {
-        ingresarSistema () {
-            const valid = this.$refs.formLogin.validate()
-            if(valid) {
-                //cambiar pagina
-                this.$router.push('/dashboard')
-            }
-            else {
-                //alerta
-                alert('Datos incorrectos')
-            }
+        async ingresarSistema () {
+            try {
+         // Realizar una solicitud POST al servidor backend
+        const response = await this.$axios.post('http://localhost:5000/loginDoc', {
+            email: this.editedItem.email,
+            password: this.editedItem.password,
+           // Otros campos del formulario
+        }
+        );
+         // Puedes hacer algo con la respuesta del backend, como mostrar un mensaje de éxito
+        console.log('Respuesta del backend:', response.data.alert);
+        if(response.data.alert === 'SESSION_START()'){
+            this.$router.push('/dashboard')
+        }
+        } catch (error) {
+        console.error('Error al iniciar sesion', error);
+        }
         },
         pageRegistro () {
             this.$router.push('/Sigin')
