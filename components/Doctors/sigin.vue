@@ -93,10 +93,10 @@ export default {
         regresarLogin(){
             this.$router.push('/')
         },
-         async registrarSistema () {
-             try {
+        async registrarSistema () {
+            try {
          // Realizar una solicitud POST al servidor backend
-         const response = await this.$axios.post('http://localhost:5000/registerDoc', {
+        const response = await this.$axios.post('http://localhost:5000/registerDoc', {
             name: this.editedItem.name,
             app: this.editedItem.app,
             apm: this.editedItem.apm,
@@ -104,14 +104,14 @@ export default {
             password: this.editedItem.password,
             phone: this.editedItem.phone,
            // Otros campos del formulario
-         }
-         );
+        }
+        );
          // Puedes hacer algo con la respuesta del backend, como mostrar un mensaje de éxito
-         console.log('Respuesta del backend:', response.data);
-       } catch (error) {
-         console.error('Error al registrar el doctor:', error);
-     }
-       },
+        console.log('Respuesta del backend:', response.data);
+        } catch (error) {
+        console.error('Error al registrar el doctor:', error);
+        }
+        },
     }
 };
 </script>
