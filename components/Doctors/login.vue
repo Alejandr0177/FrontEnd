@@ -77,40 +77,45 @@ export default {
             val || this.closeDelete()
         }
     },
-
+    
     methods: {
         closeDelete (){
             this.loginAlert = false
         },
-        async ingresarSistema () {
-            try {
-         // Realizar una solicitud POST al servidor backend
+        async ingresarSistema() {
+    try {
+        // Realizar una solicitud POST al servidor backend
         const response = await this.$axios.post('http://localhost:5000/loginDoc', {
             email: this.editedItem.email,
             password: this.editedItem.password,
-           // Otros campos del formulario
+            // Otros campos del formulario
+        });
+
+        const docId = response.data.data[0].doc_id;
+        console.log('Valor de doc_id:', docId);
+        // Puedes hacer algo con la respuesta del backend, como mostrar un mensaje de éxito
+        console.log('Respuesta del backend:', response.data);
+
+        if (response.data.alert === 'SESSION_START()') {
+            // Redirigir solo después de confirmar la sesión
+            this.$router.push(`/dashboard?doc_id=${docId}`);
+            this.$root.$emit('docIdObtained', docId);
         }
-        );
-         // Puedes hacer algo con la respuesta del backend, como mostrar un mensaje de éxito
-        console.log('Respuesta del backend:', response.data.alert);
-        if(response.data.alert === 'SESSION_START()'){
-            this.$router.push('/dashboard')
-        }
-        } catch (error) {
-            // console.log('Error al iniciar sesion', error);
-            // this.emailAlert = true
-            if (!error.response){
-                console.log('No server Response', error);
-            } else if (error.response.status === 401) {
-                console.log('Error al iniciar sesion', error);
-                this.loginAlert = true
-            }
-        }
-        },
-        pageRegistro () {
-            this.$router.push('/Sigin')
+    } catch (error) {
+        if (!error.response) {
+            console.log('No server Response', error);
+        } else if (error.response.status === 401) {
+            console.log('Error al iniciar sesion', error);
+            this.loginAlert = true;
         }
     }
+},
+    pageRegistro(){
+        this.$router.push(`/sigin`);
+    }
+
+    }
+    
 };
 </script>
 

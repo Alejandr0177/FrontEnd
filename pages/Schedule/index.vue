@@ -4,6 +4,7 @@
 
 <script>
 import Schedule from '@/components/Content/Schedule.vue'
+
 export default {
     name: 'IndexPage', 
     components: {
