@@ -8,40 +8,50 @@
 
                     
                         <div class="user-box">
-                            <input v-model="editedItem.email" required="">
+
+                            <input v-model="editedItem.email" required>
                             <label>Email</label>
 
                         </div>
 
                         <div class="user-box">
 
-                        <input v-model="editedItem.password" type="password" id="password" required="" >
+                        <input v-model="editedItem.password" type="password" id="password" required>
                         <label>Password</label>
 
                         </div>
 
-                    <div class="row" id="groupbtn">
-                        <div>
-                            <v-btn class="btn" @click="ingresarSistema">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                                Submit
-                            </v-btn>
+                        <div class="row" id="groupbtn">
+                            <div>
+                                <v-btn class="btn" @click="ingresarSistema">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                    Submit
+                                </v-btn>
+                            </div>
+                            <div>
+                                <v-btn class="btn" @click="pageRegistro">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                    Sig In
+                                </v-btn>
+                            </div>
                         </div>
-                        <div>
-                            <v-btn class="btn" @click="pageRegistro">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                                Sig In
-                            </v-btn>
-                        </div>
-                    </div>
-
-                </v-form>
+                    </v-form>
+                    <v-dialog v-model="loginAlert" max-width="525px">
+                        <v-card>
+                            <v-card-title class="text-h5">Incorrect Email or Password</v-card-title>
+                            <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="red darken-1" text @click="closeDelete">Close</v-btn>
+                            <v-spacer></v-spacer>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
                 </div>
             </div>
         </v-container>
@@ -51,6 +61,7 @@
 <script>
 export default {
     data: () => ({
+        loginAlert: false,
         editedItem: {
                 email: '',
                 password: '',
@@ -60,7 +71,17 @@ export default {
             }
         },
     }),
+
+    watch: {
+        emailAlert (val) {
+            val || this.closeDelete()
+        }
+    },
+
     methods: {
+        closeDelete (){
+            this.loginAlert = false
+        },
         async ingresarSistema () {
             try {
          // Realizar una solicitud POST al servidor backend
@@ -76,7 +97,14 @@ export default {
             this.$router.push('/dashboard')
         }
         } catch (error) {
-        console.error('Error al iniciar sesion', error);
+            // console.log('Error al iniciar sesion', error);
+            // this.emailAlert = true
+            if (!error.response){
+                console.log('No server Response', error);
+            } else if (error.response.status === 401) {
+                console.log('Error al iniciar sesion', error);
+                this.loginAlert = true
+            }
         }
         },
         pageRegistro () {
