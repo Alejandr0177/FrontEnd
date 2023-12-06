@@ -378,6 +378,7 @@
                     gender: this.editedItem.pat_gender,
                     treatment: this.editedItem.pat_treatment,
                     bloodgroup: this.editedItem.pat_bloodgroup,
+                    doc_id: this.$route.query.doc_id
                     });
                     console.log('Respuesta del backend:', response.data);
                     this.isNewItem = false;
