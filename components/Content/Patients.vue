@@ -43,7 +43,7 @@
                         <v-card-title><span class="text-h5">{{ formTitle }}</span></v-card-title>
                         <v-card-text>
                             <v-container>
-                                <v-row v-if="!isNewItem">
+                                <!-- <v-row v-if="!isNewItem">
 
                                     <v-col
                                         cols="12"
@@ -57,7 +57,7 @@
                                         :readonly="isReadOnly"
                                         ></v-text-field>
                                     </v-col>
-                                </v-row>
+                                </v-row> -->
                                 <v-row>
                                     <v-col
                                         cols="12"
@@ -284,176 +284,137 @@
         },
 
         methods: {
-        async initialize () {
-            //this.desserts = []
-            // this.desserts = [
-            // {
-            //     name: 'Alejandro',
-            //     phone: '4623292256',
-            //     email: 'a.garciagarcia7@ugto.mx',
-            //     age: 21,
-            //     treatment: 'Belleza',
-            // },
-            // {
-            //     name: 'Fran',
-            //     phone: '4623292256',
-            //     email: 'a.garciagarcia7@ugto.mx',
-            //     age: 21,
-            //     treatment: 'Belleza',
-            // },
-            // {
-            //     name: 'Jesus',
-            //     phone: '4623292256',
-            //     email: 'a.garciagarcia7@ugto.mx',
-            //     age: 21,
-            //     treatment: 'Belleza',
-            // },
-            // {
-            //     name: 'Yair',
-            //     phone: '4623292256',
-            //     email: 'a.garciagarcia7@ugto.mx',
-            //     age: 21,
-            //     treatment: 'Belleza',
-            // },
-            // {
-            //     name: 'Brandon',
-            //     phone: '4623292256',
-            //     email: 'a.garciagarcia7@ugto.mx',
-            //     age: 21,
-            //     treatment: 'Belleza',
-            // },
-            // ]
-            const patients_clin = await fetch('http://localhost:5000/showPats');
-            const res = await patients_clin.json();
-    
-            if (res.alert === 'success') {
-                this.desserts = res.data.map(patient => {
-                return {
-                ...patient,
-                pat_birth: patient.pat_birth.split('T')[0]  
-                    };
-                });
-            }
+            async initialize () {
+                const patients_clin = await fetch('http://localhost:5000/showPats');
+                const res = await patients_clin.json();
+                console.log(res)
+                if (res.alert === 'success') {
+                    this.desserts = res.data.map(patient => {
+                    return {
+                    ...patient,
+                    pat_birth: patient.pat_birth.split('T')[0]  
+                        };
+                    });
+                }
+                console.log('@@@ pacientes => ', this.desserts);
+            },
 
-            console.log('@@@ pacientes => ', this.desserts);
-        },
+            editItem(item) {
+                this.isNewItem = false; 
+                this.isReadOnly = true; 
+                this.editedIndex = this.desserts.indexOf(item);
+                this.editedItem = Object.assign({}, item);
+                this.editedItem.id = item.id_pat;
+                this.dialog = true; 
+            },
+            openNewDialog() {
+                this.isNewItem = true; 
+                this.isReadOnly = false; 
+                this.dialog = true; 
+            },
 
-        editItem(item) {
-            this.isNewItem = false; 
-            this.isReadOnly = true; 
-            this.editedIndex = this.desserts.indexOf(item);
-            this.editedItem = Object.assign({}, item);
-            this.editedItem.id = item.id_pat;
-            this.dialog = true; 
-        },
-        openNewDialog() {
-            this.isNewItem = true; 
-            this.isReadOnly = false; 
-            this.dialog = true; 
-        },
+            deleteItem (item) {
+                this.editedIndex = this.desserts.indexOf(item)
+                this.editedItem = Object.assign({}, item)
+                this.dialogDelete = true
+                this.editedItem.id = item.pat_id;
+            },
 
-        deleteItem (item) {
-            this.editedIndex = this.desserts.indexOf(item)
-            this.editedItem = Object.assign({}, item)
-            this.dialogDelete = true
-            this.editedItem.id = item.id_pat;
-        },
-
-        async deleteItemConfirm () {
-    try {
-        if (!this.editedItem.id) {
-            console.error('No se proporcionó el ID del paciente.');
-            return;
-        }
-
-        const response = await this.$axios.delete(`http://localhost:5000/deletePat/${this.editedItem.id}`);
-
-        console.log('Respuesta del backend:', response.data);
-        this.isNewItem = false;
-
-        if (response.data.error === null) {
-            this.desserts.splice(this.editedIndex, 1);
-        }
-
-        this.closeDelete();
-    } catch (error) {
-        console.error('Error al eliminar el paciente:', error);
-    }
-},
-
-
-        close () {
-            this.dialog = false
-            this.$nextTick(() => {
-            this.editedItem = Object.assign({}, this.defaultItem)
-            this.editedIndex = -1
-            })
-        },
-
-        closeDelete () {
-            this.dialogDelete = false
-            this.$nextTick(() => {
-            this.editedItem = Object.assign({}, this.defaultItem)
-            this.editedIndex = -1
-            })
-        },
-        save() {
-            if (this.isNewItem) {
-                this.registrarPaciente(); 
-            } else {
-                this.actualizarPaciente(); 
-            }
-            this.close();
-
-            this.initialize();
-        },
-        async registrarPaciente() {
-            try {
-                const response = await this.$axios.post('http://localhost:5000/registerPat', {
-                name: this.editedItem.pat_name,
-                lastname: this.editedItem.pat_lastname,
-                email: this.editedItem.pat_email,
-                phone: this.editedItem.pat_phone,
-                birth: this.editedItem.pat_birth,
-                gender: this.editedItem.pat_gender,
-                treatment: this.editedItem.pat_treatment,
-                bloodgroup: this.editedItem.pat_bloodgroup,
-                });
+            async deleteItemConfirm () {
+                try {
+                if (!this.editedItem.id) {
+                    console.error('No se proporcionó el ID del paciente.');
+                    return;
+                }
+                console.log(this.editedItem.id)
+                const response = await this.$axios.delete(`http://localhost:5000/deletePat/${this.editedItem.id}`);
                 console.log('Respuesta del backend:', response.data);
                 this.isNewItem = false;
-                this.close();
-                this.initialize(); 
-            } catch (error) {
-                console.error('Error al registrar el paciente:', error);
-            }
-        },
-        async actualizarPaciente() {
-            try {
-                if (!this.editedItem.id) {
-                console.error('No se proporcionó el ID del paciente.');
-                return;
+
+                if (response.data.error === null) {
+                    this.desserts.splice(this.editedIndex, 1);
                 }
 
-                // Realizar una solicitud POST al servidor backend
-                const response = await this.$axios.post(`http://localhost:5000/updatePat/${this.editedItem.id}`, {
-                name: this.editedItem.pat_name,
-                lastname: this.editedItem.pat_lastname,
-                email: this.editedItem.pat_email,
-                phone: this.editedItem.pat_phone,
-                birth: this.editedItem.pat_birth,
-                gender: this.editedItem.pat_gender,
-                treatment: this.editedItem.pat_treatment,
-                bloodgroup: this.editedItem.pat_bloodgroup,});
+                this.closeDelete();
+                } catch (error) {
+                console.error('Error al eliminar el paciente:', error);
+                }
+            },
 
-                console.log('Respuesta del backend:', response.data);
-                this.isNewItem = false;
+            close () {
+                this.dialog = false
+                this.$nextTick(() => {
+                this.editedItem = Object.assign({}, this.defaultItem)
+                this.editedIndex = -1
+                })
+            },
 
+            closeDelete () {
+                this.dialogDelete = false
+                this.$nextTick(() => {
+                this.editedItem = Object.assign({}, this.defaultItem)
+                this.editedIndex = -1
+                })
+            },
+            save() {
+                if (this.isNewItem) {
+                    this.registrarPaciente(); 
+                } else {
+                    this.actualizarPaciente(); 
+                }
                 this.close();
-                this.initialize(); 
-            } catch (error) {
-            console.error('Error al actualizar el paciente:', error);
-        }
-    },
-    }   
-}
+
+                this.initialize();
+            },
+            async registrarPaciente() {
+                //const res 
+                try {
+                    const response = await this.$axios.post('http://localhost:5000/registerPat', {
+                    name: this.editedItem.pat_name,
+                    lastname: this.editedItem.pat_lastname,
+                    email: this.editedItem.pat_email,
+                    phone: this.editedItem.pat_phone,
+                    birth: this.editedItem.pat_birth,
+                    gender: this.editedItem.pat_gender,
+                    treatment: this.editedItem.pat_treatment,
+                    bloodgroup: this.editedItem.pat_bloodgroup,
+                    });
+                    console.log('Respuesta del backend:', response.data);
+                    this.isNewItem = false;
+                    this.close();
+                    this.initialize(); 
+                } catch (error) {
+                    console.error('Error al registrar el paciente:', error);
+                }
+            },
+            async actualizarPaciente() {
+                try {
+                    if (!this.editedItem.id) {
+                    console.error('No se proporcionó el ID del paciente.');
+                    return;
+                    }
+
+                    // Realizar una solicitud POST al servidor backend
+                    const response = await this.$axios.post(`http://localhost:5000/updatePat`, {
+                    //id: this.editedItem.pat_id,
+                    name: this.editedItem.pat_name,
+                    lastname: this.editedItem.pat_lastname,
+                    email: this.editedItem.pat_email,
+                    phone: this.editedItem.pat_phone,
+                    birth: this.editedItem.pat_birth,
+                    gender: this.editedItem.pat_gender,
+                    treatment: this.editedItem.pat_treatment,
+                    bloodgroup: this.editedItem.pat_bloodgroup,});
+
+                    console.log('Respuesta del backend:', response.data);
+                    this.isNewItem = false;
+
+                    this.close();
+                    this.initialize(); 
+                    } catch (error) {
+                    console.error('Error al actualizar el paciente:', error);
+                }
+            },
+        }   
+    }
 </script>
