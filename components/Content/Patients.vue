@@ -27,13 +27,14 @@
                     v-model="dialog"
                     max-width="500px"
                     >
-                    <template v-slot:activator="{ on, attrs }">
+                    <template v-slot:activator="{ on, attrs } ">
                         <v-btn
                             color="primary"
                             dark
                             class="mb-2"
                             v-bind="attrs"
                             v-on="on"
+                            @click="openNewDialog"
                             >
                             New Item
                         </v-btn>
@@ -42,6 +43,21 @@
                         <v-card-title><span class="text-h5">{{ formTitle }}</span></v-card-title>
                         <v-card-text>
                             <v-container>
+                                <v-row v-if="!isNewItem">
+
+                                    <v-col
+                                        cols="12"
+                                        sm="6"
+                                        md="6"
+                                    >
+                                        <v-text-field
+                                        v-model="editedItem.id"
+                                        label="Patient ID"
+                                        type=""
+                                        :readonly="isReadOnly"
+                                        ></v-text-field>
+                                    </v-col>
+                                </v-row>
                                 <v-row>
                                     <v-col
                                         cols="12"
@@ -73,6 +89,7 @@
                                         <v-text-field
                                             v-model="editedItem.pat_email"
                                             label="Email"
+                                            :readonly="isReadOnly"
                                             >
                                         </v-text-field>
                                     </v-col>
@@ -84,6 +101,7 @@
                                         <v-text-field
                                             v-model="editedItem.pat_phone"
                                             label="Phone"
+                                            :readonly="isReadOnly"
                                             >
                                         </v-text-field>
                                     </v-col>
@@ -207,6 +225,8 @@
         data: () => ({
             dialog: false,
             dialogDelete: false,
+            isNewItem: false,
+            isReadOnly: true,
             //date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
             calendBirth: false,
             search: '',
@@ -222,11 +242,12 @@
             desserts: [],
             editedIndex: -1,
             editedItem: {
+                id: null,
                 pat_name: '',
                 pat_lastname: '',
                 pat_email: '',
                 pat_phone: '',
-                pat_birth: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+                pat_birth: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().split('T')[0],   
                 pat_gender: '',
                 pat_treatment: '',
                 pat_bloodgroup: '',
@@ -302,30 +323,64 @@
             //     treatment: 'Belleza',
             // },
             // ]
-            const patients_clin = await fetch('http://localhost:5000/showPats')
-            const res = await patients_clin.json()
+            const patients_clin = await fetch('http://localhost:5000/showPats');
+            const res = await patients_clin.json();
+    
             if (res.alert === 'success') {
-                this.desserts = res.data
+                this.desserts = res.data.map(patient => {
+                return {
+                ...patient,
+                pat_birth: patient.pat_birth.split('T')[0]  
+                    };
+                });
             }
-            console.log('@@@ pacientes => ', this.desserts)
+
+            console.log('@@@ pacientes => ', this.desserts);
         },
 
-        editItem (item) {
-            this.editedIndex = this.desserts.indexOf(item)
-            this.editedItem = Object.assign({}, item)
-            this.dialog = true
+        editItem(item) {
+            this.isNewItem = false; 
+            this.isReadOnly = true; 
+            this.editedIndex = this.desserts.indexOf(item);
+            this.editedItem = Object.assign({}, item);
+            this.editedItem.id = item.id_pat;
+            this.dialog = true; 
+        },
+        openNewDialog() {
+            this.isNewItem = true; 
+            this.isReadOnly = false; 
+            this.dialog = true; 
         },
 
         deleteItem (item) {
             this.editedIndex = this.desserts.indexOf(item)
             this.editedItem = Object.assign({}, item)
             this.dialogDelete = true
+            this.editedItem.id = item.id_pat;
         },
 
-        deleteItemConfirm () {
-            this.desserts.splice(this.editedIndex, 1)
-            this.closeDelete()
-        },
+        async deleteItemConfirm () {
+    try {
+        if (!this.editedItem.id) {
+            console.error('No se proporcionó el ID del paciente.');
+            return;
+        }
+
+        const response = await this.$axios.delete(`http://localhost:5000/deletePat/${this.editedItem.id}`);
+
+        console.log('Respuesta del backend:', response.data);
+        this.isNewItem = false;
+
+        if (response.data.error === null) {
+            this.desserts.splice(this.editedIndex, 1);
+        }
+
+        this.closeDelete();
+    } catch (error) {
+        console.error('Error al eliminar el paciente:', error);
+    }
+},
+
 
         close () {
             this.dialog = false
@@ -342,15 +397,63 @@
             this.editedIndex = -1
             })
         },
-
-        save () {
-            if (this.editedIndex > -1) {
-            Object.assign(this.desserts[this.editedIndex], this.editedItem)
+        save() {
+            if (this.isNewItem) {
+                this.registrarPaciente(); 
             } else {
-            this.desserts.push(this.editedItem)
+                this.actualizarPaciente(); 
             }
-            this.close()
+            this.close();
+
+            this.initialize();
         },
+        async registrarPaciente() {
+            try {
+                const response = await this.$axios.post('http://localhost:5000/registerPat', {
+                name: this.editedItem.pat_name,
+                lastname: this.editedItem.pat_lastname,
+                email: this.editedItem.pat_email,
+                phone: this.editedItem.pat_phone,
+                birth: this.editedItem.pat_birth,
+                gender: this.editedItem.pat_gender,
+                treatment: this.editedItem.pat_treatment,
+                bloodgroup: this.editedItem.pat_bloodgroup,
+                });
+                console.log('Respuesta del backend:', response.data);
+                this.isNewItem = false;
+                this.close();
+                this.initialize(); 
+            } catch (error) {
+                console.error('Error al registrar el paciente:', error);
+            }
         },
-    }
+        async actualizarPaciente() {
+            try {
+                if (!this.editedItem.id) {
+                console.error('No se proporcionó el ID del paciente.');
+                return;
+                }
+
+                // Realizar una solicitud POST al servidor backend
+                const response = await this.$axios.post(`http://localhost:5000/updatePat/${this.editedItem.id}`, {
+                name: this.editedItem.pat_name,
+                lastname: this.editedItem.pat_lastname,
+                email: this.editedItem.pat_email,
+                phone: this.editedItem.pat_phone,
+                birth: this.editedItem.pat_birth,
+                gender: this.editedItem.pat_gender,
+                treatment: this.editedItem.pat_treatment,
+                bloodgroup: this.editedItem.pat_bloodgroup,});
+
+                console.log('Respuesta del backend:', response.data);
+                this.isNewItem = false;
+
+                this.close();
+                this.initialize(); 
+            } catch (error) {
+            console.error('Error al actualizar el paciente:', error);
+        }
+    },
+    }   
+}
 </script>
