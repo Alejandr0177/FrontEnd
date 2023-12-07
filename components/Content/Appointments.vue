@@ -348,7 +348,7 @@
         try {
             const response = await fetch('http://localhost:5000/showAppointments');
             const result = await response.json();
-
+            console.log(`@@@caaaaaaaaaaaaaaaaaa = ${result}`);
             if (result.alert === 'success') {
                 this.desserts = result.data;
             } else {
