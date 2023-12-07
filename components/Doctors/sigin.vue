@@ -54,7 +54,10 @@
                     type="password"
                     id="password"
                     required
-                    :rules="[v => !!v || 'Este campo es obligatorio']"
+                    :rules="[
+                      v => !!v || 'Este campo es obligatorio',
+                      v => v && v.length >= 9 || 'La contraseña debe tener al menos 9 caracteres'
+                    ]"
                   ></v-text-field>
                 </div>
 
@@ -150,3 +153,5 @@ export default {
 <style lang="scss" scoped>
 @import '../../assets/css/sigin.css';
 </style>
+
+
