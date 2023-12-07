@@ -17,7 +17,7 @@
 
             <div class="row" id="groupbtn">
               <div>
-                <v-btn class="btn" @click="ingresarSistema">
+                <v-btn class="btn" @click="ingresarSistema" :disabled="!validarFormulario">
                   <span></span>
                   <span></span>
                   <span></span>
@@ -61,10 +61,17 @@ export default {
       password: '',
       regla: {
         vacio: value => !!value || 'Campo Requerido',
-        cantidad: value => value.length > 8 || 'Minimo 8 caracteres'
+        cantidad: value => value.length > 8 || 'Mínimo 8 caracteres'
       }
     },
   }),
+
+  computed: {
+    validarFormulario() {
+      // Validar que ambos campos estén llenos
+      return !!this.editedItem.email && !!this.editedItem.password;
+    }
+  },
 
   watch: {
     emailAlert(val) {
@@ -77,6 +84,11 @@ export default {
       this.loginAlert = false
     },
     async ingresarSistema() {
+      // Validar antes de enviar la solicitud
+      if (!this.validarFormulario) {
+        return;
+      }
+
       try {
         // Realizar una solicitud POST al servidor backend
         const response = await this.$axios.post('http://localhost:5000/loginDoc', {
@@ -100,7 +112,7 @@ export default {
         if (!error.response) {
           console.log('No server Response', error);
         } else if (error.response.status === 401) {
-          console.log('Error al iniciar sesion', error);
+          console.log('Error al iniciar sesión', error);
           this.loginAlert = true;
         }
       }
