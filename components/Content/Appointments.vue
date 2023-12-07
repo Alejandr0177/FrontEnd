@@ -46,13 +46,14 @@
                                     <v-col
                                         cols="12"
                                         sm="6"
-                                        md="10"
+                                        md="6"
                                         >
-                                        <v-text-field
-                                        v-model="editedItem.name"
+                                        <v-select
+                                        v-model="editedItem.time"
+                                        @click="listaName()"
+                                        :items="datetime"
                                         label="Name"
-                                        >
-                                        </v-text-field>
+                                        ></v-select>
                                     </v-col>
                                     <v-col
                                         cols="12"
@@ -187,11 +188,11 @@
             calendBirth: false,
             search: '',
             headers: [
-                { text: 'Name', align: 'start', sortable: false, value: 'name'},
-                { text: 'Email', value: 'email', sortable: false },
-                { text: 'Phone', value: 'phone', sortable: false },
-                { text: 'Date', value: 'date', sortable: false },
-                { text: 'Time', value: 'time', sortable: false  },
+                { text: 'Name', align: 'start', sortable: false, value: 'pat_nombre'},
+                { text: 'Email', value: 'pat_email', sortable: false },
+                { text: 'Phone', value: 'pat_phone', sortable: false },
+                { text: 'Date', value: 'app_date', sortable: false },
+                { text: 'Time', value: 'app_time', sortable: false  },
                 { text: 'Status', value: 'status', sortable: false },
             ],
             datetime: [],
@@ -218,7 +219,12 @@
                 }
                 //console.log(this.datetime)
             },
+            listaName()
+            {
+
+            },
             desserts: [],
+            pacientes: [],
             editedIndex: -1,
             editedItem: {
                 name: '',
@@ -264,41 +270,41 @@
         methods: {
         initialize () {
             this.desserts = [
-            {
-                name: 'Alejandro',
-                phone: '4623292256',
-                email: 'a.garciagarcia7@ugto.mx',
-                age: 21,
-                treatment: 'Belleza',
-            },
-            {
-                name: 'Fran',
-                phone: '4623292256',
-                email: 'a.garciagarcia7@ugto.mx',
-                age: 21,
-                treatment: 'Belleza',
-            },
-            {
-                name: 'Jesus',
-                phone: '4623292256',
-                email: 'a.garciagarcia7@ugto.mx',
-                age: 21,
-                treatment: 'Belleza',
-            },
-            {
-                name: 'Yair',
-                phone: '4623292256',
-                email: 'a.garciagarcia7@ugto.mx',
-                age: 21,
-                treatment: 'Belleza',
-            },
-            {
-                name: 'Brandon',
-                phone: '4623292256',
-                email: 'a.garciagarcia7@ugto.mx',
-                age: 21,
-                treatment: 'Belleza',
-            },
+            //{
+            //    name: 'Alejandro',
+            //    phone: '4623292256',
+            //    email: 'a.garciagarcia7@ugto.mx',
+            //    age: 21,
+            //    treatment: 'Belleza',
+            //},
+            //{
+            //    name: 'Fran',
+            //    phone: '4623292256',
+            //    email: 'a.garciagarcia7@ugto.mx',
+            //    age: 21,
+            //    treatment: 'Belleza',
+            //},
+            //{
+            //    name: 'Jesus',
+            //    phone: '4623292256',
+            //    email: 'a.garciagarcia7@ugto.mx',
+            //    age: 21,
+            //    treatment: 'Belleza',
+            //},
+            //{
+            //    name: 'Yair',
+            //    phone: '4623292256',
+            //    email: 'a.garciagarcia7@ugto.mx',
+            //    age: 21,
+            //    treatment: 'Belleza',
+            //},
+            //{
+            //    name: 'Brandon',
+            //    phone: '4623292256',
+            //    email: 'a.garciagarcia7@ugto.mx',
+            //    age: 21,
+            //    treatment: 'Belleza',
+            //},
             ]
         },
 
@@ -343,6 +349,38 @@
             }
             this.close()
         },
-        },
-    }
+        async initialize() {
+        try {
+            const response = await fetch('http://localhost:5000/showAppointments');
+            const result = await response.json();
+
+            if (result.alert === 'success') {
+                this.desserts = result.data;
+            } else {
+                // Handle the case where the API call was successful but no data is returned
+                this.desserts = [];
+            }
+
+            console.log('@@@ citas => ', this.desserts);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            // Handle the error as needed
+        }
+    },
+    async ObtenerPacientes () {
+                const patients_clin = await fetch('http://localhost:5000/showPats');
+                const res = await patients_clin.json();
+                console.log(res)
+                if (res.alert === 'success') {
+                    this.pacientes = res.data.map(patient => {
+                    return {
+                    ...patient,
+                    pat_birth: patient.pat_birth.split('T')[0]  
+                        };
+                    });
+                }
+                console.log('@@@ pacientes => ', this.pacientes);
+            },
+    },
+}
 </script>
