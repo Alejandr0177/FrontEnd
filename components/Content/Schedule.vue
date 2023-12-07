@@ -91,7 +91,7 @@ export default{
         },
         async fetchCitas() {
             try {
-                const response = await fetch('http://localhost:5000/get-calendario');
+                const response = await fetch('http://localhost:5000/cons2Appointments');
                 const data = await response.json();
                 if (data.alert === 'success') {
                     this.citas = data.citas.filter(cita => {
@@ -135,7 +135,7 @@ export default{
 </script>
 
 <style>
- /*
+/*
 Calendario terminado 
 */
 </style>
