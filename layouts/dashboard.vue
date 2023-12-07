@@ -63,32 +63,36 @@ export default {
             {
             icon: 'mdi-view-dashboard',
             title: 'Dashboard',
-            to: `/dashboard?id_doc=${this.id_doc}`
+            // to: `/dashboard?id_doc=${this.id_doc}`
+            to: `/dashboard`
             },
             {
             icon: 'mdi-notebook',
             title: 'Appointments',
-            to: `/Appointments?id_doc=${this.id_doc}`
+            // to: `/Appointments?id_doc=${this.id_doc}`
+            to: `/Appointments`
             },
             {
             icon: 'mdi-account-group',
             title: 'Patients',
-            to: `/Patients?id_doc=${this.id_doc}`
+            // to: `/Patients?id_doc=${this.id_doc}`
+            to: `/Patients`
             },
             {
             icon: 'mdi-timetable',
             title: 'Schedule',
-            to: `/Schedule?id_doc=${this.id_doc}`
+            // to: `/Schedule?id_doc=${this.id_doc}`
+            to: `/Schedule`
             }
         ],
         title: 'Vuetify.js'
         }
     }, 
-    mounted() {
-    // Escuchar el evento emitido por el componente hijo
-        this.$root.$on('docIdObtained', (docId) => {
-        this.id_doc = docId;
-        });
-    },
+    // mounted() {
+    // // Escuchar el evento emitido por el componente hijo
+    //     this.$root.$on('docIdObtained', (docId) => {
+    //     this.id_doc = docId;
+    //     });
+    // },
 }
 </script>

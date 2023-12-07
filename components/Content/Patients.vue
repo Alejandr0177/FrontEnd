@@ -408,7 +408,7 @@
 
                     // Realizar una solicitud POST al servidor backend
                     const response = await this.$axios.put(`http://localhost:5000/updatePat`, {
-                    pat_id: this.editedItem.pat_id,
+                    date: this.editedItem.pat_id,
                     name: this.editedItem.pat_name,
                     lastname: this.editedItem.pat_lastname,
                     email: this.editedItem.pat_email,

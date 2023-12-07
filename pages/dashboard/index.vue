@@ -1,5 +1,5 @@
 <template>
-    <Dashboard :docId="this.docId"/>
+    <Dashboard />
 </template>
 
 <script>
@@ -10,16 +10,16 @@ export default {
         Dashboard
     },
     layout: 'dashboard',
-    created() {
-        const docId = this.$route.query.doc_id;
-        if (!docId) {
-        // Si no hay doc_id, redirigir al inicio de sesión
-        this.$router.push('/');
-    } else {
-        // Puedes hacer algo con docId si es necesario
-        console.log('Se ha encontrado un doc_id en la URL:', docId);
-        this.docId = docId;
-    }
-    },
+    // created() {
+    //     const docId = this.$route.query.doc_id;
+    //     if (!docId) {
+    //     // Si no hay doc_id, redirigir al inicio de sesión
+    //     this.$router.push('/');
+    // } else {
+    //     // Puedes hacer algo con docId si es necesario
+    //     console.log('Se ha encontrado un doc_id en la URL:', docId);
+    //     this.docId = docId;
+    // }
+    // },
 }
 </script>
