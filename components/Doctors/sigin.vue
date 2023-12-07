@@ -54,7 +54,10 @@
                     type="password"
                     id="password"
                     required
-                    :rules="[v => !!v || 'Este campo es obligatorio']"
+                    :rules="[
+                      v => !!v || 'Este campo es obligatorio',
+                      v => v && v.length >= 9 || 'La contraseña debe tener al menos 9 caracteres'
+                    ]"
                   ></v-text-field>
                 </div>
 
@@ -138,6 +141,7 @@ export default {
 
         // Puedes hacer algo con la respuesta del backend, como mostrar un mensaje de éxito
         console.log('Respuesta del backend:', response.data);
+        this.$router.push('');
       } catch (error) {
         console.error('Error al registrar el doctor:', error);
       }
