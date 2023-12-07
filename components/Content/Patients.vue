@@ -58,12 +58,6 @@
                                         ></v-text-field>
                                     </v-col>
                                 </v-row> -->
-                                <v-col cols="12" sm="6" md="6" style="justify-content: ;">
-                                    <v-text-field
-                                        v-model="constantIdDoc"
-                                        label="Número de trabajador"
-                                    ></v-text-field>
-                                </v-col>
                                 <v-row>
                                     <v-col
                                         cols="12"
@@ -95,7 +89,7 @@
                                         <v-text-field
                                             v-model="editedItem.pat_email"
                                             label="Email"
-                                            
+                                            readonly
                                             >
                                         </v-text-field>
                                     </v-col>
@@ -107,7 +101,7 @@
                                         <v-text-field
                                             v-model="editedItem.pat_phone"
                                             label="Phone"
-                                            
+                                            readonly
                                             >
                                         </v-text-field>
                                     </v-col>
@@ -250,7 +244,6 @@
             editedIndex: -1,
             editedItem: {
                 id_pat: '',
-                id_doc: '',
                 pat_name: '',
                 pat_lastname: '',
                 pat_email: '',
@@ -262,7 +255,6 @@
             },
             defaultItem: {
                 id_pat: '',
-                id_doc: '',
                 pat_name: '',
                 pat_lastname: '',
                 pat_email: '',
@@ -320,7 +312,6 @@
             openNewDialog() {
                 this.isNewItem = true; 
                 this.isReadOnly = false; 
-                this.editedItem.id_doc = this.constantIdDoc;
                 this.dialog = true; 
             },
 
@@ -389,7 +380,6 @@
                     gender: this.editedItem.pat_gender,
                     treatment: this.editedItem.pat_treatment,
                     bloodgroup: this.editedItem.pat_bloodgroup,
-                    doc_id: this.constantIdDoc,
                     });
                     console.log('Respuesta del backend:', response.data);
                     this.isNewItem = false;
@@ -408,7 +398,7 @@
 
                     // Realizar una solicitud POST al servidor backend
                     const response = await this.$axios.put(`http://localhost:5000/updatePat`, {
-                    date: this.editedItem.pat_id,
+                    pat_id: this.editedItem.pat_id,
                     name: this.editedItem.pat_name,
                     lastname: this.editedItem.pat_lastname,
                     email: this.editedItem.pat_email,
@@ -417,7 +407,6 @@
                     gender: this.editedItem.pat_gender,
                     treatment: this.editedItem.pat_treatment,
                     bloodgroup: this.editedItem.pat_bloodgroup,
-                    doc_id: this.constantIdDoc,
                     });
                     
                     console.log('Respuesta del backend:', response.data);
