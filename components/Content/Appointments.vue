@@ -49,9 +49,9 @@
                                         md="6"
                                         >
                                         <v-select
-                                        v-model="editedItem.time"
+                                        v-model="editedItem.name"
                                         @click="listaName()"
-                                        :items="datetime"
+                                        :items="listaNames"
                                         label="Name"
                                         ></v-select>
                                     </v-col>
@@ -219,10 +219,23 @@
                 }
                 //console.log(this.datetime)
             },
-            listaName()
-            {
+            listaName() {
+    // Clear existing names in the array
+    this.listaNames = [];
 
-            },
+    // Populate the array with patient names
+    this.pacientes.forEach(patient => {
+        // Check if pat_nombre and pat_apellido are defined
+        if (patient.pat_name && patient.pat_lastname) {
+            const fullName = `${patient.pat_name} ${patient.pat_lastname}`;
+            this.listaNames.push(fullName);
+        } else {
+            console.error('Missing pat_nombre or pat_apellido in patient data:', patient);
+        }
+    });
+
+    console.log('@@@ listaNames => ', this.listaNames);
+},
             desserts: [],
             pacientes: [],
             editedIndex: -1,
@@ -264,7 +277,8 @@
         },
 
         created () {
-        this.initialize()
+            this.initialize()
+            this.ObtenerPacientes();
         },
 
         methods: {
@@ -367,19 +381,53 @@
             // Handle the error as needed
         }
     },
-    async ObtenerPacientes () {
+    async ObtenerPacientes() {
+            try {
                 const patients_clin = await fetch('http://localhost:5000/showPats');
                 const res = await patients_clin.json();
-                console.log(res)
+
                 if (res.alert === 'success') {
                     this.pacientes = res.data.map(patient => {
-                    return {
-                    ...patient,
-                    pat_birth: patient.pat_birth.split('T')[0]  
+                        return {
+                            ...patient,
+                            pat_birth: patient.pat_birth.split('T')[0],
                         };
                     });
+
+                    // Populate the listaNames array when patients data is fetched
+                    this.listaName();
+                } else {
+                    // Handle the case where the API call was successful but no data is returned
+                    this.pacientes = [];
                 }
+
                 console.log('@@@ pacientes => ', this.pacientes);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                // Handle the error as needed
+            }
+        },
+        async registrarAppointments() {
+                //const res 
+                try {
+                    const response = await this.$axios.post('http://localhost:5000/registerPat', {
+                    name: this.editedItem.pat_name,
+                    lastname: this.editedItem.pat_lastname,
+                    email: this.editedItem.pat_email,
+                    phone: this.editedItem.pat_phone,
+                    birth: this.editedItem.pat_birth,
+                    gender: this.editedItem.pat_gender,
+                    treatment: this.editedItem.pat_treatment,
+                    bloodgroup: this.editedItem.pat_bloodgroup,
+                    doc_id: this.constantIdDoc,
+                    });
+                    console.log('Respuesta del backend:', response.data);
+                    this.isNewItem = false;
+                    this.close();
+                    this.initialize(); 
+                } catch (error) {
+                    console.error('Error al registrar el paciente:', error);
+                }
             },
     },
 }
