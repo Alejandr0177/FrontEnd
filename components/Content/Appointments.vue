@@ -43,40 +43,22 @@
                         <v-card-text>
                             <v-container>
                                 <v-row>
-                                    <v-col
-                                        cols="12"
-                                        sm="6"
-                                        md="6"
-                                        >
+                                    <v-col>
                                         <v-select
-                                        v-model="editedItem.name"
-                                        @click="listaName()"
-                                        :items="listaNames"
-                                        label="Name"
+                                           v-model="selectedPatient"
+                                           :items="listaNames"
+                                           label="Seleccionar Paciente"
                                         ></v-select>
                                     </v-col>
-                                    <v-col
-                                        cols="12"
-                                        sm="6"
-                                        md="10"
-                                        >
+                                    <v-col>
                                         <v-text-field
-                                            v-model="editedItem.email"
-                                            label="Email"
-                                            >
-                                        </v-text-field>
+                                           v-model="editedItem.pat_id"
+                                           label="ID del Paciente"
+                                           
+                                        ></v-text-field>
                                     </v-col>
-                                    <v-col
-                                        cols="12"
-                                        sm="6"
-                                        md="10"
-                                        >
-                                        <v-text-field
-                                            v-model="editedItem.phone"
-                                            label="Phone"
-                                            >
-                                        </v-text-field>
-                                    </v-col>
+                                    
+                                    
                                     <v-col
                                         cols="12"
                                         sm="6"
@@ -133,7 +115,7 @@
                             <v-btn
                                 color="blue darken-1"
                                 text
-                                @click="save"
+                                @click="registrarAppointments"
                                 >
                                 Save
                             </v-btn>
@@ -184,6 +166,7 @@
         data: () => ({
             dialog: false,
             dialogDelete: false,
+            selectedPatient: null,
             //date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
             calendBirth: false,
             search: '',
@@ -241,23 +224,15 @@
             editedIndex: -1,
             editedItem: {
                 name: '',
-                lastname: '',
-                email: '',
-                phone: '',
-                birth: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
-                gender: '',
-                treatment: '',
-                bloodgroup: '',
+                id_doc: '',
+                date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+                time: '',
             },
             defaultItem: {
                 name: '',
-                lastname: '',
-                email: '',
-                phone: '',
-                birth: '',
-                gender: '',
-                treatment: '',
-                bloodgroup: '',
+                id_doc: '',
+                date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+                time: '',
             },
         }),
 
@@ -268,12 +243,18 @@
         },
 
         watch: {
-        dialog (val) {
-            val || this.close()
-        },
-        dialogDelete (val) {
-            val || this.closeDelete()
-        },
+            selectedPatient(newVal, oldVal) {
+        if (newVal) {
+            // Encuentra el paciente seleccionado en la listaNames y actualiza el idPat
+            const selectedPatientData = this.pacientes.find(
+                (patient) => patient.pat_name === newVal
+            );
+            this.idPat = selectedPatientData ? selectedPatientData.id_pat : null;
+
+            // Asigna el idPat al campo id_pat en editedItem (asegúrate de usar el mismo nombre)
+            this.editedItem.pat_id = this.idPat;
+        }
+    },
         },
 
         created () {
@@ -408,27 +389,21 @@
             }
         },
         async registrarAppointments() {
-                //const res 
-                try {
-                    const response = await this.$axios.post('http://localhost:5000/registerPat', {
-                    name: this.editedItem.pat_name,
-                    lastname: this.editedItem.pat_lastname,
-                    email: this.editedItem.pat_email,
-                    phone: this.editedItem.pat_phone,
-                    birth: this.editedItem.pat_birth,
-                    gender: this.editedItem.pat_gender,
-                    treatment: this.editedItem.pat_treatment,
-                    bloodgroup: this.editedItem.pat_bloodgroup,
-                    doc_id: this.constantIdDoc,
-                    });
-                    console.log('Respuesta del backend:', response.data);
-                    this.isNewItem = false;
-                    this.close();
-                    this.initialize(); 
-                } catch (error) {
-                    console.error('Error al registrar el paciente:', error);
-                }
-            },
+    try {
+        const response = await this.$axios.post('http://localhost:5000/registerAppointment', {
+            date: this.editedItem.date,
+            hour: this.editedItem.time,
+            pat_id: this.editedItem.pat_id,  // Usa el mismo nombre aquí
+        });
+
+        console.log('Respuesta del backend:', response.data);
+        this.isNewItem = false;
+        this.close();
+        this.initialize(); 
+    } catch (error) {
+        console.error('Error al registrar el paciente:', error);
+    }
+},
     },
 }
 </script>
